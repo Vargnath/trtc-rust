@@ -25,6 +25,28 @@ impl Tuple {
     pub fn is_vector(&self) -> bool {
         float_eq(self.w, 0.0)
     }
+
+    pub fn magnitude(&self) -> f64 {
+        f64::sqrt(self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2))
+    }
+
+    pub fn normalize(&self) -> Self {
+        let magnitude = self.magnitude();
+        Self {
+            x: self.x / magnitude,
+            y: self.y / magnitude,
+            z: self.z / magnitude,
+            w: self.w / magnitude,
+        }
+    }
+
+    pub fn cross(&self, other: &Self) -> Self {
+        Self::new_vector(
+            self.y * other.z - self.z * other.y,
+            self.z * other.x - self.x * other.z,
+            self.x * other.y - self.y * other.x,
+        )
+    }
 }
 
 impl PartialEq for Tuple {
@@ -68,6 +90,14 @@ impl Neg for Tuple {
     fn neg(self) -> Self::Output {
         let zero = Tuple::new_vector(0.0, 0.0, 0.0);
         zero - self
+    }
+}
+
+impl Mul for Tuple {
+    type Output = f64;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        self.x * rhs.x + self.y * rhs.y + self.z * rhs.z + self.w * rhs.w
     }
 }
 
@@ -272,5 +302,85 @@ mod tests {
             w: -2.0,
         };
         assert_eq!(a / 2.0, expected);
+    }
+
+    #[test]
+    fn magnitude_of_vector_1_0_0_is_1() {
+        let v = Tuple::new_vector(1.0, 0.0, 0.0);
+
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    #[test]
+    fn magnitude_of_vector_0_1_0_is_1() {
+        let v = Tuple::new_vector(0.0, 1.0, 0.0);
+
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    #[test]
+    fn magnitude_of_vector_0_0_1_is_1() {
+        let v = Tuple::new_vector(0.0, 0.0, 1.0);
+
+        assert_eq!(v.magnitude(), 1.0);
+    }
+
+    #[test]
+    fn magnitude_of_vector_results_is_correct() {
+        let v = Tuple::new_vector(1.0, 2.0, 3.0);
+
+        assert_eq!(v.magnitude(), f64::sqrt(14.0));
+    }
+
+    #[test]
+    fn magnitude_of_all_negative_vector_results_is_correct() {
+        let v = Tuple::new_vector(-1.0, -2.0, -3.0);
+
+        assert_eq!(v.magnitude(), f64::sqrt(14.0));
+    }
+
+    #[test]
+    fn normalizing_vector_4_0_0_gives_vector_1_0_0() {
+        let v = Tuple::new_vector(4.0, 0.0, 0.0);
+        let expected = Tuple::new_vector(1.0, 0.0, 0.0);
+
+        assert_eq!(v.normalize(), expected);
+    }
+
+    #[test]
+    fn normalizing_vector_4_0_0_gives_correct_vector() {
+        let v = Tuple::new_vector(1.0, 2.0, 3.0);
+
+        let sqrt_14 = f64::sqrt(14.0);
+        let expected = Tuple::new_vector(1.0 / sqrt_14, 2.0 / sqrt_14, 3.0 / sqrt_14);
+
+        assert_eq!(v.normalize(), expected);
+    }
+
+    #[test]
+    fn magnitude_of_normalized_vector_is_1() {
+        let v = Tuple::new_vector(1.0, 2.0, 3.0);
+
+        assert_eq!(v.normalize().magnitude(), 1.0);
+    }
+
+    #[test]
+    fn scalar_product_of_two_vectors_is_correct() {
+        let a = Tuple::new_vector(1.0, 2.0, 3.0);
+        let b = Tuple::new_vector(2.0, 3.0, 4.0);
+
+        assert_eq!(a * b, 20.0);
+    }
+
+    #[test]
+    fn cross_product_of_two_vectors_is_correct() {
+        let a = Tuple::new_vector(1.0, 2.0, 3.0);
+        let b = Tuple::new_vector(2.0, 3.0, 4.0);
+
+        let expected = Tuple::new_vector(-1.0, 2.0, -1.0);
+        assert_eq!(a.cross(&b), expected);
+
+        let expected = Tuple::new_vector(1.0, -2.0, 1.0);
+        assert_eq!(b.cross(&a), expected);
     }
 }
