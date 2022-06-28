@@ -1,7 +1,7 @@
+pub mod tuple;
+
 // Due to round-off errors two floats that should be equivalent might be slightly different.
 // The following code was suggested by the book, so it should work within the book's scope.
-
-pub mod tuple;
 
 const EPSILON: f64 = 0.00001;
 
