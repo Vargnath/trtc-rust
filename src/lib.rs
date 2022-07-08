@@ -1,5 +1,6 @@
 pub mod canvas;
 pub mod color;
+pub mod matrix;
 pub mod tuple;
 
 // Due to round-off errors two floats that should be equivalent might be slightly different.
