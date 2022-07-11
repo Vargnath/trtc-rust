@@ -108,7 +108,7 @@ impl Mul<Tuple> for Matrix4 {
 
 #[cfg(test)]
 mod tests {
-    use crate::float_eq;
+    use crate::assert_float_eq;
     use crate::matrix::{Matrix2, Matrix3, Matrix4};
     use crate::tuple::Tuple;
 
@@ -116,19 +116,19 @@ mod tests {
     fn constructing_and_inspecting_a_2_x_2_matrix() {
         let m = Matrix2::new([[-3.0, 5.0], [1.0, -2.0]]);
 
-        assert!(float_eq(m[0][0], -3.0));
-        assert!(float_eq(m[0][1], 5.0));
-        assert!(float_eq(m[1][0], 1.0));
-        assert!(float_eq(m[1][1], -2.0));
+        assert_float_eq!(m[0][0], -3.0);
+        assert_float_eq!(m[0][1], 5.0);
+        assert_float_eq!(m[1][0], 1.0);
+        assert_float_eq!(m[1][1], -2.0);
     }
 
     #[test]
     fn constructing_and_inspecting_a_3_x_3_matrix() {
         let m = Matrix3::new([[-3.0, 5.0, 0.0], [1.0, -2.0, -7.0], [0.0, 1.0, 1.0]]);
 
-        assert!(float_eq(m[0][0], -3.0));
-        assert!(float_eq(m[1][1], -2.0));
-        assert!(float_eq(m[2][2], 1.0));
+        assert_float_eq!(m[0][0], -3.0);
+        assert_float_eq!(m[1][1], -2.0);
+        assert_float_eq!(m[2][2], 1.0);
     }
 
     #[test]
@@ -140,13 +140,13 @@ mod tests {
             [13.5, 14.5, 15.5, 16.5],
         ]);
 
-        assert!(float_eq(m[0][0], 1.0));
-        assert!(float_eq(m[0][3], 4.0));
-        assert!(float_eq(m[1][0], 5.5));
-        assert!(float_eq(m[1][2], 7.5));
-        assert!(float_eq(m[2][2], 11.0));
-        assert!(float_eq(m[3][0], 13.5));
-        assert!(float_eq(m[3][2], 15.5));
+        assert_float_eq!(m[0][0], 1.0);
+        assert_float_eq!(m[0][3], 4.0);
+        assert_float_eq!(m[1][0], 5.5);
+        assert_float_eq!(m[1][2], 7.5);
+        assert_float_eq!(m[2][2], 11.0);
+        assert_float_eq!(m[3][0], 13.5);
+        assert_float_eq!(m[3][2], 15.5);
     }
 
     #[test]

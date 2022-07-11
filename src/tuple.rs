@@ -133,6 +133,7 @@ impl Div<f64> for Tuple {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_float_eq;
     use crate::tuple::Tuple;
 
     #[test]
@@ -312,35 +313,35 @@ mod tests {
     fn magnitude_of_vector_1_0_0_is_1() {
         let v = Tuple::new_vector(1.0, 0.0, 0.0);
 
-        assert_eq!(v.magnitude(), 1.0);
+        assert_float_eq!(v.magnitude(), 1.0);
     }
 
     #[test]
     fn magnitude_of_vector_0_1_0_is_1() {
         let v = Tuple::new_vector(0.0, 1.0, 0.0);
 
-        assert_eq!(v.magnitude(), 1.0);
+        assert_float_eq!(v.magnitude(), 1.0);
     }
 
     #[test]
     fn magnitude_of_vector_0_0_1_is_1() {
         let v = Tuple::new_vector(0.0, 0.0, 1.0);
 
-        assert_eq!(v.magnitude(), 1.0);
+        assert_float_eq!(v.magnitude(), 1.0);
     }
 
     #[test]
     fn magnitude_of_vector_results_is_correct() {
         let v = Tuple::new_vector(1.0, 2.0, 3.0);
 
-        assert_eq!(v.magnitude(), f64::sqrt(14.0));
+        assert_float_eq!(v.magnitude(), f64::sqrt(14.0));
     }
 
     #[test]
     fn magnitude_of_all_negative_vector_results_is_correct() {
         let v = Tuple::new_vector(-1.0, -2.0, -3.0);
 
-        assert_eq!(v.magnitude(), f64::sqrt(14.0));
+        assert_float_eq!(v.magnitude(), f64::sqrt(14.0));
     }
 
     #[test]
@@ -365,7 +366,7 @@ mod tests {
     fn magnitude_of_normalized_vector_is_1() {
         let v = Tuple::new_vector(1.0, 2.0, 3.0);
 
-        assert_eq!(v.normalize().magnitude(), 1.0);
+        assert_float_eq!(v.normalize().magnitude(), 1.0);
     }
 
     #[test]
@@ -373,7 +374,7 @@ mod tests {
         let a = Tuple::new_vector(1.0, 2.0, 3.0);
         let b = Tuple::new_vector(2.0, 3.0, 4.0);
 
-        assert_eq!(a * b, 20.0);
+        assert_float_eq!(a * b, 20.0);
     }
 
     #[test]

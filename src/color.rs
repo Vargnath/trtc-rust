@@ -72,15 +72,15 @@ impl Mul for Color {
 
 #[cfg(test)]
 mod tests {
+    use crate::assert_float_eq;
     use crate::color::Color;
-    use crate::float_eq;
 
     #[test]
     fn colors_are_red_green_blue_tuples() {
         let c = Color::new(-0.5, 0.4, 1.7);
-        assert!(float_eq(c.red, -0.5));
-        assert!(float_eq(c.green, 0.4));
-        assert!(float_eq(c.blue, 1.7));
+        assert_float_eq!(c.red, -0.5);
+        assert_float_eq!(c.green, 0.4);
+        assert_float_eq!(c.blue, 1.7);
     }
 
     #[test]
