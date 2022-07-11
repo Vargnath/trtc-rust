@@ -173,6 +173,14 @@ impl Matrix4 {
         translation[2][3] = z;
         translation
     }
+
+    pub fn scaling(x: f64, y: f64, z: f64) -> Self {
+        let mut scaling = Self::identity();
+        scaling[0][0] = x;
+        scaling[1][1] = y;
+        scaling[2][2] = z;
+        scaling
+    }
 }
 
 impl Mul<Tuple> for Matrix4 {
@@ -552,5 +560,42 @@ mod tests {
         let v = Tuple::new_vector(-3.0, 4.0, 5.0);
 
         assert_eq!(transform * v, v);
+    }
+
+    #[test]
+    fn a_scaling_matrix_applied_to_a_point() {
+        let transform = Matrix4::scaling(2.0, 3.0, 4.0);
+        let p = Tuple::new_point(-4.0, 6.0, 8.0);
+        let expected = Tuple::new_point(-8.0, 18.0, 32.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn a_scaling_matrix_applied_to_a_vector() {
+        let transform = Matrix4::scaling(2.0, 3.0, 4.0);
+        let v = Tuple::new_vector(-4.0, 6.0, 8.0);
+        let expected = Tuple::new_vector(-8.0, 18.0, 32.0);
+
+        assert_eq!(transform * v, expected);
+    }
+
+    #[test]
+    fn multiplying_by_the_inverse_of_a_scaling_matrix() {
+        let transform = Matrix4::scaling(2.0, 3.0, 4.0);
+        let inv = transform.inverse();
+        let v = Tuple::new_vector(-4.0, 6.0, 8.0);
+        let expected = Tuple::new_vector(-2.0, 2.0, 2.0);
+
+        assert_eq!(inv * v, expected);
+    }
+
+    #[test]
+    fn reflection_is_scaling_by_a_negative_value() {
+        let transform = Matrix4::scaling(-1.0, 1.0, 1.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(-2.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, expected);
     }
 }
