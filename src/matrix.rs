@@ -181,6 +181,33 @@ impl Matrix4 {
         scaling[2][2] = z;
         scaling
     }
+
+    pub fn rotation_x(r: f64) -> Self {
+        let mut rotation = Self::identity();
+        rotation[1][1] = r.cos();
+        rotation[1][2] = -r.sin();
+        rotation[2][1] = r.sin();
+        rotation[2][2] = r.cos();
+        rotation
+    }
+
+    pub fn rotation_y(r: f64) -> Self {
+        let mut rotation = Self::identity();
+        rotation[0][0] = r.cos();
+        rotation[0][2] = r.sin();
+        rotation[2][0] = -r.sin();
+        rotation[2][2] = r.cos();
+        rotation
+    }
+
+    pub fn rotation_z(r: f64) -> Self {
+        let mut rotation = Self::identity();
+        rotation[0][0] = r.cos();
+        rotation[0][1] = -r.sin();
+        rotation[1][0] = r.sin();
+        rotation[1][1] = r.cos();
+        rotation
+    }
 }
 
 impl Mul<Tuple> for Matrix4 {
@@ -201,6 +228,7 @@ mod tests {
     use crate::assert_float_eq;
     use crate::matrix::{Matrix2, Matrix3, Matrix4};
     use crate::tuple::Tuple;
+    use std::f64::consts::PI;
 
     #[test]
     fn constructing_and_inspecting_a_2_x_2_matrix() {
@@ -597,5 +625,54 @@ mod tests {
         let expected = Tuple::new_point(-2.0, 3.0, 4.0);
 
         assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn rotating_a_point_around_the_x_axis() {
+        let p = Tuple::new_point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix4::rotation_x(PI / 4.0);
+        let full_quarter = Matrix4::rotation_x(PI / 2.0);
+
+        let expected = Tuple::new_point(0.0, f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0);
+        assert_eq!(half_quarter * p, expected);
+
+        let expected = Tuple::new_point(0.0, 0.0, 1.0);
+        assert_eq!(full_quarter * p, expected);
+    }
+
+    #[test]
+    fn the_inverse_of_an_x_rotation_rotates_in_the_opposite_direction() {
+        let p = Tuple::new_point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix4::rotation_x(PI / 4.0);
+        let inv = half_quarter.inverse();
+        let expected = Tuple::new_point(0.0, f64::sqrt(2.0) / 2.0, -f64::sqrt(2.0) / 2.0);
+
+        assert_eq!(inv * p, expected);
+    }
+
+    #[test]
+    fn rotating_a_point_around_the_y_axis() {
+        let p = Tuple::new_point(0.0, 0.0, 1.0);
+        let half_quarter = Matrix4::rotation_y(PI / 4.0);
+        let full_quarter = Matrix4::rotation_y(PI / 2.0);
+
+        let expected = Tuple::new_point(f64::sqrt(2.0) / 2.0, 0.0, f64::sqrt(2.0) / 2.0);
+        assert_eq!(half_quarter * p, expected);
+
+        let expected = Tuple::new_point(1.0, 0.0, 0.0);
+        assert_eq!(full_quarter * p, expected);
+    }
+
+    #[test]
+    fn rotating_a_point_around_the_z_axis() {
+        let p = Tuple::new_point(0.0, 1.0, 0.0);
+        let half_quarter = Matrix4::rotation_z(PI / 4.0);
+        let full_quarter = Matrix4::rotation_z(PI / 2.0);
+
+        let expected = Tuple::new_point(-f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0, 0.0);
+        assert_eq!(half_quarter * p, expected);
+
+        let expected = Tuple::new_point(-1.0, 0.0, 0.0);
+        assert_eq!(full_quarter * p, expected);
     }
 }
