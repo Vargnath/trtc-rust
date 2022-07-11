@@ -53,7 +53,7 @@ macro_rules! impl_matrix {
             type Output = $MatrixN;
 
             fn mul(self, rhs: Self) -> Self::Output {
-                let mut result = $MatrixN::default();
+                let mut result = Self::Output::default();
                 for i in 0..$n {
                     for j in 0..$n {
                         let element = &mut result[i][j];
