@@ -23,6 +23,16 @@ macro_rules! impl_matrix {
             pub fn new(rows: [[f64; $n]; $n]) -> Self {
                 Self { rows }
             }
+
+            pub fn transpose(&self) -> Self {
+                let mut result = Self::default();
+                for i in 0..$n {
+                    for j in 0..$n {
+                        result[i][j] = self[j][i];
+                    }
+                }
+                result
+            }
         }
 
         impl PartialEq for $MatrixN {
@@ -230,5 +240,30 @@ mod tests {
         let a = Tuple::new(1.0, 2.0, 3.0, 4.0);
 
         assert_eq!(Matrix4::identity() * a, a);
+    }
+
+    #[test]
+    fn transposing_a_matrix() {
+        let a = Matrix4::new([
+            [0.0, 9.0, 3.0, 0.0],
+            [9.0, 8.0, 0.0, 8.0],
+            [1.0, 8.0, 5.0, 3.0],
+            [0.0, 0.0, 5.0, 8.0],
+        ]);
+        let expected = Matrix4::new([
+            [0.0, 9.0, 1.0, 0.0],
+            [9.0, 8.0, 8.0, 0.0],
+            [3.0, 0.0, 5.0, 5.0],
+            [0.0, 8.0, 3.0, 8.0],
+        ]);
+
+        assert_eq!(a.transpose(), expected);
+    }
+
+    #[test]
+    fn transposing_the_identity_matrix() {
+        let a = Matrix4::identity().transpose();
+
+        assert_eq!(a, Matrix4::identity());
     }
 }
