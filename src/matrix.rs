@@ -165,6 +165,14 @@ impl Matrix4 {
             [0.0, 0.0, 0.0, 1.0],
         ])
     }
+
+    pub fn translation(x: f64, y: f64, z: f64) -> Self {
+        let mut translation = Self::identity();
+        translation[0][3] = x;
+        translation[1][3] = y;
+        translation[2][3] = z;
+        translation
+    }
 }
 
 impl Mul<Tuple> for Matrix4 {
@@ -517,5 +525,32 @@ mod tests {
         let c = a * b;
 
         assert_eq!(c * b.inverse(), a);
+    }
+
+    #[test]
+    fn multiplying_by_a_translation_matrix() {
+        let transform = Matrix4::translation(5.0, -3.0, 2.0);
+        let p = Tuple::new_point(-3.0, 4.0, 5.0);
+        let expected = Tuple::new_point(2.0, 1.0, 7.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn multiplying_by_the_inverse_of_a_translation_matrix() {
+        let transform = Matrix4::translation(5.0, -3.0, 2.0);
+        let inv = transform.inverse();
+        let p = Tuple::new_point(-3.0, 4.0, 5.0);
+        let expected = Tuple::new_point(-8.0, 7.0, 3.0);
+
+        assert_eq!(inv * p, expected);
+    }
+
+    #[test]
+    fn translation_does_not_affect_vectors() {
+        let transform = Matrix4::translation(5.0, -3.0, 2.0);
+        let v = Tuple::new_vector(-3.0, 4.0, 5.0);
+
+        assert_eq!(transform * v, v);
     }
 }
