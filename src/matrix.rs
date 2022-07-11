@@ -174,12 +174,20 @@ impl Matrix4 {
         translation
     }
 
+    pub fn translate(self, x: f64, y: f64, z: f64) -> Self {
+        Self::translation(x, y, z) * self
+    }
+
     pub fn scaling(x: f64, y: f64, z: f64) -> Self {
         let mut scaling = Self::identity();
         scaling[0][0] = x;
         scaling[1][1] = y;
         scaling[2][2] = z;
         scaling
+    }
+
+    pub fn scale(self, x: f64, y: f64, z: f64) -> Self {
+        Self::scaling(x, y, z) * self
     }
 
     pub fn rotation_x(r: f64) -> Self {
@@ -191,6 +199,10 @@ impl Matrix4 {
         rotation
     }
 
+    pub fn rotate_x(self, r: f64) -> Self {
+        Self::rotation_x(r) * self
+    }
+
     pub fn rotation_y(r: f64) -> Self {
         let mut rotation = Self::identity();
         rotation[0][0] = r.cos();
@@ -198,6 +210,10 @@ impl Matrix4 {
         rotation[2][0] = -r.sin();
         rotation[2][2] = r.cos();
         rotation
+    }
+
+    pub fn rotate_y(self, r: f64) -> Self {
+        Self::rotation_y(r) * self
     }
 
     pub fn rotation_z(r: f64) -> Self {
@@ -209,6 +225,10 @@ impl Matrix4 {
         rotation
     }
 
+    pub fn rotate_z(self, r: f64) -> Self {
+        Self::rotation_z(r) * self
+    }
+
     pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         let mut shearing = Self::identity();
         shearing[0][1] = xy;
@@ -218,6 +238,10 @@ impl Matrix4 {
         shearing[2][0] = zx;
         shearing[2][1] = zy;
         shearing
+    }
+
+    pub fn shear(self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
+        Self::shearing(xy, xz, yx, yz, zx, zy) * self
     }
 }
 
@@ -771,5 +795,17 @@ mod tests {
 
         let expected = Tuple::new_point(15.0, 0.0, 7.0);
         assert_eq!(t * p, expected);
+    }
+
+    #[test]
+    fn fluent_api_applies_transformation_in_sequence() {
+        let p = Tuple::new_point(1.0, 0.0, 1.0);
+        let transform = Matrix4::identity()
+            .rotate_x(PI / 2.0)
+            .scale(5.0, 5.0, 5.0)
+            .translate(10.0, 5.0, 7.0);
+
+        let expected = Tuple::new_point(15.0, 0.0, 7.0);
+        assert_eq!(transform * p, expected);
     }
 }
