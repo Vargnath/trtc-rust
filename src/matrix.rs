@@ -208,6 +208,17 @@ impl Matrix4 {
         rotation[1][1] = r.cos();
         rotation
     }
+
+    pub fn shearing(xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
+        let mut shearing = Self::identity();
+        shearing[0][1] = xy;
+        shearing[0][2] = xz;
+        shearing[1][0] = yx;
+        shearing[1][2] = yz;
+        shearing[2][0] = zx;
+        shearing[2][1] = zy;
+        shearing
+    }
 }
 
 impl Mul<Tuple> for Matrix4 {
@@ -674,5 +685,59 @@ mod tests {
 
         let expected = Tuple::new_point(-1.0, 0.0, 0.0);
         assert_eq!(full_quarter * p, expected);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_x_in_proportion_to_y() {
+        let transform = Matrix4::shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(5.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_x_in_proportion_to_z() {
+        let transform = Matrix4::shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(6.0, 3.0, 4.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_y_in_proportion_to_x() {
+        let transform = Matrix4::shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(2.0, 5.0, 4.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_y_in_proportion_to_z() {
+        let transform = Matrix4::shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(2.0, 7.0, 4.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_z_in_proportion_to_x() {
+        let transform = Matrix4::shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(2.0, 3.0, 6.0);
+
+        assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_z_in_proportion_to_y() {
+        let transform = Matrix4::shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = Tuple::new_point(2.0, 3.0, 4.0);
+        let expected = Tuple::new_point(2.0, 3.0, 7.0);
+
+        assert_eq!(transform * p, expected);
     }
 }
