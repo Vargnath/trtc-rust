@@ -72,6 +72,17 @@ impl_matrix!(Matrix2, 2);
 impl_matrix!(Matrix3, 3);
 impl_matrix!(Matrix4, 4);
 
+impl Matrix4 {
+    pub fn identity() -> Self {
+        Matrix4::new([
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ])
+    }
+}
+
 impl Mul<Tuple> for Matrix4 {
     type Output = Tuple;
 
@@ -200,5 +211,24 @@ mod tests {
         let expected = Tuple::new(18.0, 24.0, 33.0, 1.0);
 
         assert_eq!(a * b, expected);
+    }
+
+    #[test]
+    fn multiplying_a_matrix_by_the_identity_matrix() {
+        let a = Matrix4::new([
+            [0.0, 1.0, 2.0, 4.0],
+            [1.0, 2.0, 4.0, 8.0],
+            [2.0, 4.0, 8.0, 16.0],
+            [4.0, 8.0, 16.0, 32.0],
+        ]);
+
+        assert_eq!(a * Matrix4::identity(), a);
+    }
+
+    #[test]
+    fn multiplying_the_identity_matrix_by_a_tuple() {
+        let a = Tuple::new(1.0, 2.0, 3.0, 4.0);
+
+        assert_eq!(Matrix4::identity() * a, a);
     }
 }
