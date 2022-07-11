@@ -740,4 +740,36 @@ mod tests {
 
         assert_eq!(transform * p, expected);
     }
+
+    #[test]
+    fn individual_transformations_are_applied_in_sequence() {
+        let p = Tuple::new_point(1.0, 0.0, 1.0);
+        let a = Matrix4::rotation_x(PI / 2.0);
+        let b = Matrix4::scaling(5.0, 5.0, 5.0);
+        let c = Matrix4::translation(10.0, 5.0, 7.0);
+
+        let p2 = a * p;
+        let expected = Tuple::new_point(1.0, -1.0, 0.0);
+        assert_eq!(p2, expected);
+
+        let p3 = b * p2;
+        let expected = Tuple::new_point(5.0, -5.0, 0.0);
+        assert_eq!(p3, expected);
+
+        let p4 = c * p3;
+        let expected = Tuple::new_point(15.0, 0.0, 7.0);
+        assert_eq!(p4, expected);
+    }
+
+    #[test]
+    fn chained_transformations_must_be_applied_in_reverse_order() {
+        let p = Tuple::new_point(1.0, 0.0, 1.0);
+        let a = Matrix4::rotation_x(PI / 2.0);
+        let b = Matrix4::scaling(5.0, 5.0, 5.0);
+        let c = Matrix4::translation(10.0, 5.0, 7.0);
+        let t = c * b * a;
+
+        let expected = Tuple::new_point(15.0, 0.0, 7.0);
+        assert_eq!(t * p, expected);
+    }
 }
