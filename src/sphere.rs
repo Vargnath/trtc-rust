@@ -1,4 +1,5 @@
 use crate::intersections::{Intersection, Intersections};
+use crate::material::Material;
 use crate::matrix::Matrix4;
 use crate::ray::Ray;
 use crate::tuple::Tuple;
@@ -6,12 +7,14 @@ use crate::tuple::Tuple;
 #[derive(Debug, Default, Copy, Clone)]
 pub struct Sphere {
     pub transform: Matrix4,
+    pub material: Material,
 }
 
 impl Sphere {
     pub fn new() -> Self {
         Self {
             transform: Matrix4::identity(),
+            material: Material::new(),
         }
     }
 
@@ -45,6 +48,7 @@ impl Sphere {
 #[cfg(test)]
 mod tests {
     use crate::assert_float_eq;
+    use crate::material::Material;
     use crate::matrix::Matrix4;
     use crate::ray::Ray;
     use crate::sphere::Sphere;
@@ -252,5 +256,23 @@ mod tests {
         let expected = Tuple::new_vector(0.0, 0.97014, -0.24254);
 
         assert_eq!(n, expected)
+    }
+
+    #[test]
+    fn a_sphere_has_a_default_material() {
+        let s = Sphere::new();
+        let m = s.material;
+
+        assert_eq!(m, Material::new());
+    }
+
+    #[test]
+    fn a_sphere_may_be_assigned_a_material() {
+        let mut s = Sphere::new();
+        let mut m = Material::new();
+        m.ambient = 1.0;
+        s.material = m;
+
+        assert_eq!(s.material, m);
     }
 }
