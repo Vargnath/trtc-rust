@@ -7,6 +7,7 @@ pub mod matrix;
 pub mod ray;
 pub mod sphere;
 pub mod tuple;
+pub mod world;
 
 // Due to round-off errors two floats that should be equivalent might be slightly different.
 // The following code was suggested by the book, so it should work within the book's scope.
