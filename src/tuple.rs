@@ -51,6 +51,10 @@ impl Tuple {
             self.x * other.y - self.y * other.x,
         )
     }
+
+    pub fn reflect(&self, normal: Tuple) -> Self {
+        *self - normal * 2.0 * (*self * normal)
+    }
 }
 
 impl PartialEq for Tuple {
@@ -387,5 +391,24 @@ mod tests {
 
         let expected = Tuple::new_vector(1.0, -2.0, 1.0);
         assert_eq!(b.cross(&a), expected);
+    }
+
+    #[test]
+    fn reflecting_a_vector_approaching_at_45_degree() {
+        let v = Tuple::new_vector(1.0, -1.0, 0.0);
+        let n = Tuple::new_vector(0.0, 1.0, 0.0);
+        let r = v.reflect(n);
+        let expected = Tuple::new_vector(1.0, 1.0, 0.0);
+        assert_eq!(r, expected);
+    }
+
+    #[test]
+    fn reflecting_a_vector_off_a_slanted_surface() {
+        let v = Tuple::new_vector(0.0, -1.0, 0.0);
+        let n = Tuple::new_vector(f64::sqrt(2.0) / 2.0, f64::sqrt(2.0) / 2.0, 0.0);
+        let r = v.reflect(n);
+        let expected = Tuple::new_vector(1.0, 0.0, 0.0);
+
+        assert_eq!(r, expected);
     }
 }
