@@ -1,5 +1,5 @@
 use crate::sphere::Sphere;
-use std::ops::Index;
+use std::ops::{Deref, Index};
 use std::ptr;
 
 #[derive(Debug, Copy, Clone)]
@@ -61,6 +61,14 @@ impl<'a> Index<usize> for Intersections<'a> {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.inner[index]
+    }
+}
+
+impl<'a> Deref for Intersections<'a> {
+    type Target = [Intersection<'a>];
+
+    fn deref(&self) -> &Self::Target {
+        self.inner.as_slice()
     }
 }
 
