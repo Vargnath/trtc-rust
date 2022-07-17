@@ -4,7 +4,7 @@ use crate::matrix::Matrix4;
 use crate::ray::Ray;
 use crate::tuple::Tuple;
 
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Default, Copy, Clone, PartialEq)]
 pub struct Sphere {
     pub transform: Matrix4,
     pub material: Material,
