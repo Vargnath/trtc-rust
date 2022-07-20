@@ -44,7 +44,7 @@ impl Tuple {
         }
     }
 
-    pub fn cross(&self, other: &Self) -> Self {
+    pub fn cross(&self, other: Self) -> Self {
         Self::new_vector(
             self.y * other.z - self.z * other.y,
             self.z * other.x - self.x * other.z,
@@ -387,10 +387,10 @@ mod tests {
         let b = Tuple::new_vector(2.0, 3.0, 4.0);
 
         let expected = Tuple::new_vector(-1.0, 2.0, -1.0);
-        assert_eq!(a.cross(&b), expected);
+        assert_eq!(a.cross(b), expected);
 
         let expected = Tuple::new_vector(1.0, -2.0, 1.0);
-        assert_eq!(b.cross(&a), expected);
+        assert_eq!(b.cross(a), expected);
     }
 
     #[test]
