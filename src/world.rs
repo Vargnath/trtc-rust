@@ -1,8 +1,10 @@
 use crate::color::Color;
 use crate::intersections::{Computations, Intersections};
 use crate::light::PointLight;
+use crate::matrix::Matrix4;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
+use crate::tuple::Tuple;
 
 #[derive(Debug, Clone)]
 pub struct World {
@@ -51,6 +53,25 @@ impl Default for World {
     }
 }
 
+#[doc(hidden)]
+pub fn default_world() -> World {
+    let light = PointLight::new(
+        Tuple::new_point(-10.0, 10.0, -10.0),
+        Color::new(1.0, 1.0, 1.0),
+    );
+    let mut s1 = Sphere::new();
+    s1.material.color = Color::new(0.8, 1.0, 0.6);
+    s1.material.diffuse = 0.7;
+    s1.material.specular = 0.2;
+    let mut s2 = Sphere::new();
+    s2.transform = Matrix4::scaling(0.5, 0.5, 0.5);
+
+    World {
+        objects: vec![s1, s2],
+        light: Some(light),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::assert_float_eq;
@@ -61,25 +82,7 @@ mod tests {
     use crate::ray::Ray;
     use crate::sphere::Sphere;
     use crate::tuple::Tuple;
-    use crate::world::World;
-
-    fn default_world() -> World {
-        let light = PointLight::new(
-            Tuple::new_point(-10.0, 10.0, -10.0),
-            Color::new(1.0, 1.0, 1.0),
-        );
-        let mut s1 = Sphere::new();
-        s1.material.color = Color::new(0.8, 1.0, 0.6);
-        s1.material.diffuse = 0.7;
-        s1.material.specular = 0.2;
-        let mut s2 = Sphere::new();
-        s2.transform = Matrix4::scaling(0.5, 0.5, 0.5);
-
-        World {
-            objects: vec![s1, s2],
-            light: Some(light),
-        }
-    }
+    use crate::world::{default_world, World};
 
     #[test]
     fn creating_a_world() {
