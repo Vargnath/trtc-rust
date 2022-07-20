@@ -4,6 +4,7 @@ use crate::light::PointLight;
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 
+#[derive(Debug, Clone)]
 pub struct World {
     pub objects: Vec<Sphere>,
     pub light: Option<PointLight>,
