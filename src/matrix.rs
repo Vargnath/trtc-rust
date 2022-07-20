@@ -243,6 +243,21 @@ impl Matrix4 {
     pub fn shear(self, xy: f64, xz: f64, yx: f64, yz: f64, zx: f64, zy: f64) -> Self {
         Self::shearing(xy, xz, yx, yz, zx, zy) * self
     }
+
+    pub fn view_transform(from: Tuple, to: Tuple, up: Tuple) -> Self {
+        let forward = (to - from).normalize();
+        let upn = up.normalize();
+        let left = forward.cross(upn);
+        let true_up = left.cross(forward);
+
+        let orientation = Matrix4::new([
+            [left.x, left.y, left.z, 0.0],
+            [true_up.x, true_up.y, true_up.z, 0.0],
+            [-forward.x, -forward.y, -forward.z, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ]);
+        orientation * Matrix4::translation(-from.x, -from.y, -from.z)
+    }
 }
 
 impl Mul<Tuple> for Matrix4 {
@@ -807,5 +822,51 @@ mod tests {
 
         let expected = Tuple::new_point(15.0, 0.0, 7.0);
         assert_eq!(transform * p, expected);
+    }
+
+    #[test]
+    fn the_transformation_matrix_for_the_default_orientation() {
+        let from = Tuple::new_point(0.0, 0.0, 0.0);
+        let to = Tuple::new_point(0.0, 0.0, -1.0);
+        let up = Tuple::new_vector(0.0, 1.0, 0.0);
+        let t = Matrix4::view_transform(from, to, up);
+
+        assert_eq!(t, Matrix4::identity());
+    }
+
+    #[test]
+    fn a_view_transformation_matrix_looking_in_positive_z_direction() {
+        let from = Tuple::new_point(0.0, 0.0, 0.0);
+        let to = Tuple::new_point(0.0, 0.0, 1.0);
+        let up = Tuple::new_vector(0.0, 1.0, 0.0);
+        let t = Matrix4::view_transform(from, to, up);
+
+        assert_eq!(t, Matrix4::scaling(-1.0, 1.0, -1.0));
+    }
+
+    #[test]
+    fn the_view_transformation_moves_the_world() {
+        let from = Tuple::new_point(0.0, 0.0, 8.0);
+        let to = Tuple::new_point(0.0, 0.0, 0.0);
+        let up = Tuple::new_vector(0.0, 1.0, 0.0);
+        let t = Matrix4::view_transform(from, to, up);
+
+        assert_eq!(t, Matrix4::translation(0.0, 0.0, -8.0));
+    }
+
+    #[test]
+    fn an_arbitrary_view_transformation() {
+        let from = Tuple::new_point(1.0, 3.0, 2.0);
+        let to = Tuple::new_point(4.0, -2.0, 8.0);
+        let up = Tuple::new_vector(1.0, 1.0, 0.0);
+        let t = Matrix4::view_transform(from, to, up);
+
+        let expected = Matrix4::new([
+            [-0.50709, 0.50709, 0.67612, -2.36643],
+            [0.76772, 0.60609, 0.12122, -2.82843],
+            [-0.35857, 0.59761, -0.71714, 0.00000],
+            [0.00000, 0.00000, 0.00000, 1.00000],
+        ]);
+        assert_eq!(t, expected);
     }
 }
