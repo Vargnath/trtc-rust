@@ -1,6 +1,7 @@
 use crate::ray::Ray;
 use crate::sphere::Sphere;
 use crate::tuple::Tuple;
+use crate::EPSILON;
 use std::ops::{Deref, Index};
 use std::ptr;
 
@@ -11,6 +12,7 @@ pub struct Computations<'a> {
     pub eyev: Tuple,
     pub normalv: Tuple,
     pub inside: bool,
+    pub over_point: Tuple,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -35,6 +37,7 @@ impl<'a> Intersection<'a> {
         } else {
             false
         };
+        let over_point = point + normalv * EPSILON;
         Computations {
             t: self.t,
             object,
@@ -42,6 +45,7 @@ impl<'a> Intersection<'a> {
             eyev,
             normalv,
             inside,
+            over_point,
         }
     }
 }

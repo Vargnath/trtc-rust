@@ -30,12 +30,13 @@ impl World {
     }
 
     pub fn shade_hit(&self, comps: Computations) -> Color {
+        let shadowed = self.is_shadowed(comps.over_point);
         comps.object.material.lighting(
             self.light.unwrap(),
             comps.point,
             comps.eyev,
             comps.normalv,
-            false,
+            shadowed,
         )
     }
 
@@ -89,7 +90,6 @@ pub fn default_world() -> World {
 
 #[cfg(test)]
 mod tests {
-    use crate::assert_float_eq;
     use crate::color::Color;
     use crate::intersections::Intersection;
     use crate::light::PointLight;
@@ -98,6 +98,7 @@ mod tests {
     use crate::sphere::Sphere;
     use crate::tuple::Tuple;
     use crate::world::{default_world, World};
+    use crate::{assert_float_eq, EPSILON};
 
     #[test]
     fn creating_a_world() {
@@ -249,5 +250,43 @@ mod tests {
         let p = Tuple::new_point(-2.0, 2.0, -2.0);
 
         assert!(!w.is_shadowed(p));
+    }
+
+    #[test]
+    fn shade_hit_is_given_an_intersection_in_shadow() {
+        let mut w = World::new();
+        w.light = Some(PointLight::new(
+            Tuple::new_point(0.0, 0.0, -10.0),
+            Color::new(1.0, 1.0, 1.0),
+        ));
+        let s1 = Sphere::new();
+        w.objects.push(s1);
+        let mut s2 = Sphere::new();
+        s2.transform = Matrix4::translation(0.0, 0.0, 10.0);
+        w.objects.push(s2);
+        let r = Ray::new(
+            Tuple::new_point(0.0, 0.0, 5.0),
+            Tuple::new_vector(0.0, 0.0, 1.0),
+        );
+        let i = Intersection::new(4.0, &s2);
+        let comps = i.prepare_computations(r);
+        let c = w.shade_hit(comps);
+
+        assert_eq!(c, Color::new(0.1, 0.1, 0.1));
+    }
+
+    #[test]
+    fn the_hit_should_offset_the_point() {
+        let r = Ray::new(
+            Tuple::new_point(0.0, 0.0, -5.0),
+            Tuple::new_vector(0.0, 0.0, 1.0),
+        );
+        let mut shape = Sphere::new();
+        shape.transform = Matrix4::translation(0.0, 0.0, 1.0);
+        let i = Intersection::new(5.0, &shape);
+        let comps = i.prepare_computations(r);
+
+        assert!(comps.over_point.z < -EPSILON / 2.0);
+        assert!(comps.point.z > comps.over_point.z);
     }
 }
