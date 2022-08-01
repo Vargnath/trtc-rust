@@ -30,10 +30,13 @@ impl World {
     }
 
     pub fn shade_hit(&self, comps: Computations) -> Color {
-        comps
-            .object
-            .material
-            .lighting(self.light.unwrap(), comps.point, comps.eyev, comps.normalv)
+        comps.object.material.lighting(
+            self.light.unwrap(),
+            comps.point,
+            comps.eyev,
+            comps.normalv,
+            false,
+        )
     }
 
     pub fn color_at(&self, r: Ray) -> Color {
