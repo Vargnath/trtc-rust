@@ -79,6 +79,6 @@ fn main() {
 
     let canvas = camera.render(world);
 
-    let mut file = File::create("chapter_07.ppm").unwrap();
+    let mut file = File::create("chapter_08.ppm").unwrap();
     file.write_all(canvas.to_ppm().as_slice()).unwrap();
 }
