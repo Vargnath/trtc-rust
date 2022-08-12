@@ -1,6 +1,7 @@
 use crate::canvas::Canvas;
 use crate::matrix::Matrix4;
 use crate::ray::Ray;
+use crate::shape::Shape;
 use crate::tuple::Tuple;
 use crate::world::World;
 
@@ -48,7 +49,7 @@ impl Camera {
         Ray::new(origin, direction)
     }
 
-    pub fn render(&self, world: World) -> Canvas {
+    pub fn render<S: Shape>(&self, world: World<S>) -> Canvas {
         let mut image = Canvas::new(self.hsize, self.vsize);
 
         for y in 0..self.vsize {

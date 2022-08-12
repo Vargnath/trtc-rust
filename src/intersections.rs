@@ -1,4 +1,5 @@
 use crate::ray::Ray;
+use crate::shape::Shape;
 use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 use crate::EPSILON;

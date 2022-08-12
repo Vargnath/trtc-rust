@@ -3,16 +3,17 @@ use crate::intersections::{Computations, Intersections};
 use crate::light::PointLight;
 use crate::matrix::Matrix4;
 use crate::ray::Ray;
+use crate::shape::Shape;
 use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 
-#[derive(Debug, Clone)]
-pub struct World {
-    pub objects: Vec<Sphere>,
+#[derive(Debug)]
+pub struct World<S: Shape> {
+    pub objects: Vec<S>,
     pub light: Option<PointLight>,
 }
 
-impl World {
+impl<S: Shape> World<S> {
     pub fn new() -> Self {
         Self {
             objects: Vec::new(),
@@ -63,14 +64,14 @@ impl World {
     }
 }
 
-impl Default for World {
+impl<S: Shape> Default for World<S> {
     fn default() -> Self {
         World::new()
     }
 }
 
 #[doc(hidden)]
-pub fn default_world() -> World {
+pub fn default_world() -> World<Sphere> {
     let light = PointLight::new(
         Tuple::new_point(-10.0, 10.0, -10.0),
         Color::new(1.0, 1.0, 1.0),
@@ -102,7 +103,7 @@ mod tests {
 
     #[test]
     fn creating_a_world() {
-        let w = World::new();
+        let w = World::<Sphere>::new();
 
         assert!(w.objects.is_empty());
         assert_eq!(w.light, None)

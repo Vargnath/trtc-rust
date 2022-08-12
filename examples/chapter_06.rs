@@ -4,6 +4,7 @@ use trtc_rust::canvas::Canvas;
 use trtc_rust::color::Color;
 use trtc_rust::light::PointLight;
 use trtc_rust::ray::Ray;
+use trtc_rust::shape::Shape;
 use trtc_rust::sphere::Sphere;
 use trtc_rust::tuple::Tuple;
 

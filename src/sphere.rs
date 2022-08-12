@@ -2,6 +2,7 @@ use crate::intersections::{Intersection, Intersections};
 use crate::material::Material;
 use crate::matrix::Matrix4;
 use crate::ray::Ray;
+use crate::shape::Shape;
 use crate::tuple::Tuple;
 
 #[derive(Debug, Default, Copy, Clone, PartialEq)]
@@ -17,12 +18,21 @@ impl Sphere {
             material: Material::new(),
         }
     }
+}
 
-    pub fn intersect(&self, ray: Ray) -> Intersections {
-        let ray = ray.transform(self.transform.inverse());
-        let sphere_to_ray = ray.origin - Tuple::new_point(0.0, 0.0, 0.0);
-        let a = ray.direction * ray.direction;
-        let b = 2.0 * (ray.direction * sphere_to_ray);
+impl Shape for Sphere {
+    fn transform(&self) -> Matrix4 {
+        self.transform
+    }
+
+    fn material(&self) -> Material {
+        self.material
+    }
+
+    fn local_intersect(&self, local_ray: Ray) -> Intersections {
+        let sphere_to_ray = local_ray.origin - Tuple::new_point(0.0, 0.0, 0.0);
+        let a = local_ray.direction * local_ray.direction;
+        let b = 2.0 * (local_ray.direction * sphere_to_ray);
         let c = (sphere_to_ray * sphere_to_ray) - 1.0;
 
         let discriminant = b.powi(2) - 4.0 * a * c;
@@ -36,12 +46,8 @@ impl Sphere {
         }
     }
 
-    pub fn normal_at(&self, world_point: Tuple) -> Tuple {
-        let object_point = self.transform.inverse() * world_point;
-        let object_normal = object_point - Tuple::new_point(0.0, 0.0, 0.0);
-        let mut world_normal = self.transform.inverse().transpose() * object_normal;
-        world_normal.w = 0.0;
-        world_normal.normalize()
+    fn local_normal_at(&self, local_point: Tuple) -> Tuple {
+        local_point - Tuple::new_point(0.0, 0.0, 0.0)
     }
 }
 
@@ -51,9 +57,9 @@ mod tests {
     use crate::material::Material;
     use crate::matrix::Matrix4;
     use crate::ray::Ray;
+    use crate::shape::Shape;
     use crate::sphere::Sphere;
     use crate::tuple::Tuple;
-    use std::f64::consts::PI;
     use std::ptr;
 
     #[test]
@@ -63,7 +69,7 @@ mod tests {
             Tuple::new_vector(0.0, 0.0, 1.0),
         );
         let s = Sphere::new();
-        let xs = s.intersect(r);
+        let xs = s.local_intersect(r);
         assert_eq!(xs.len(), 2);
         assert_float_eq!(xs[0].t, 4.0);
         assert_float_eq!(xs[1].t, 6.0);
@@ -76,7 +82,7 @@ mod tests {
             Tuple::new_vector(0.0, 0.0, 1.0),
         );
         let s = Sphere::new();
-        let xs = s.intersect(r);
+        let xs = s.local_intersect(r);
         assert_eq!(xs.len(), 2);
         assert_float_eq!(xs[0].t, 5.0);
         assert_float_eq!(xs[1].t, 5.0);
@@ -89,7 +95,7 @@ mod tests {
             Tuple::new_vector(0.0, 0.0, 1.0),
         );
         let s = Sphere::new();
-        let xs = s.intersect(r);
+        let xs = s.local_intersect(r);
         assert_eq!(xs.len(), 0);
     }
 
@@ -100,7 +106,7 @@ mod tests {
             Tuple::new_vector(0.0, 0.0, 1.0),
         );
         let s = Sphere::new();
-        let xs = s.intersect(r);
+        let xs = s.local_intersect(r);
         assert_eq!(xs.len(), 2);
         assert_float_eq!(xs[0].t, -1.0);
         assert_float_eq!(xs[1].t, 1.0);
@@ -113,7 +119,7 @@ mod tests {
             Tuple::new_vector(0.0, 0.0, 1.0),
         );
         let s = Sphere::new();
-        let xs = s.intersect(r);
+        let xs = s.local_intersect(r);
         assert_eq!(xs.len(), 2);
         assert_float_eq!(xs[0].t, -6.0);
         assert_float_eq!(xs[1].t, -4.0);
@@ -126,7 +132,7 @@ mod tests {
             Tuple::new_vector(0.0, 0.0, 1.0),
         );
         let s = Sphere::new();
-        let xs = s.intersect(r);
+        let xs = s.local_intersect(r);
 
         assert_eq!(xs.len(), 2);
         assert!(ptr::eq(xs[0].object, &s));
@@ -150,37 +156,9 @@ mod tests {
     }
 
     #[test]
-    fn intersecting_a_scaled_sphere_with_a_ray() {
-        let r = Ray::new(
-            Tuple::new_point(0.0, 0.0, -5.0),
-            Tuple::new_vector(0.0, 0.0, 1.0),
-        );
-        let mut s = Sphere::new();
-        s.transform = Matrix4::scaling(2.0, 2.0, 2.0);
-        let xs = s.intersect(r);
-
-        assert_eq!(xs.len(), 2);
-        assert_float_eq!(xs[0].t, 3.0);
-        assert_float_eq!(xs[1].t, 7.0);
-    }
-
-    #[test]
-    fn intersecting_a_translated_sphere_with_a_ray() {
-        let r = Ray::new(
-            Tuple::new_point(0.0, 0.0, -5.0),
-            Tuple::new_vector(0.0, 0.0, 1.0),
-        );
-        let mut s = Sphere::new();
-        s.transform = Matrix4::translation(5.0, 0.0, 0.0);
-        let xs = s.intersect(r);
-
-        assert_eq!(xs.len(), 0);
-    }
-
-    #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_x_axis() {
         let s = Sphere::new();
-        let n = s.normal_at(Tuple::new_point(1.0, 0.0, 0.0));
+        let n = s.local_normal_at(Tuple::new_point(1.0, 0.0, 0.0));
         let expected = Tuple::new_vector(1.0, 0.0, 0.0);
 
         assert_eq!(n, expected);
@@ -189,7 +167,7 @@ mod tests {
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_y_axis() {
         let s = Sphere::new();
-        let n = s.normal_at(Tuple::new_point(0.0, 1.0, 0.0));
+        let n = s.local_normal_at(Tuple::new_point(0.0, 1.0, 0.0));
         let expected = Tuple::new_vector(0.0, 1.0, 0.0);
 
         assert_eq!(n, expected);
@@ -198,7 +176,7 @@ mod tests {
     #[test]
     fn the_normal_on_a_sphere_at_a_point_on_the_z_axis() {
         let s = Sphere::new();
-        let n = s.normal_at(Tuple::new_point(0.0, 0.0, 1.0));
+        let n = s.local_normal_at(Tuple::new_point(0.0, 0.0, 1.0));
         let expected = Tuple::new_vector(0.0, 0.0, 1.0);
 
         assert_eq!(n, expected);
@@ -207,7 +185,7 @@ mod tests {
     #[test]
     fn the_normal_on_a_sphere_at_a_non_axial_point() {
         let s = Sphere::new();
-        let n = s.normal_at(Tuple::new_point(
+        let n = s.local_normal_at(Tuple::new_point(
             f64::sqrt(3.0) / 3.0,
             f64::sqrt(3.0) / 3.0,
             f64::sqrt(3.0) / 3.0,
@@ -224,38 +202,13 @@ mod tests {
     #[test]
     fn the_normal_is_a_normalized_vector() {
         let s = Sphere::new();
-        let n = s.normal_at(Tuple::new_point(
+        let n = s.local_normal_at(Tuple::new_point(
             f64::sqrt(3.0) / 3.0,
             f64::sqrt(3.0) / 3.0,
             f64::sqrt(3.0) / 3.0,
         ));
 
         assert_eq!(n, n.normalize());
-    }
-
-    #[test]
-    fn computing_the_normal_on_a_translated_sphere() {
-        let mut s = Sphere::new();
-        s.transform = Matrix4::translation(0.0, 1.0, 0.0);
-        let n = s.normal_at(Tuple::new_point(0.0, 1.70711, -0.70711));
-        let expected = Tuple::new_vector(0.0, 0.70711, -0.70711);
-
-        assert_eq!(n, expected)
-    }
-
-    #[test]
-    fn computing_the_normal_on_a_transformed_sphere() {
-        let mut s = Sphere::new();
-        let m = Matrix4::rotation_z(PI / 5.0).scale(1.0, 0.5, 1.0);
-        s.transform = m;
-        let n = s.normal_at(Tuple::new_point(
-            0.0,
-            f64::sqrt(2.0) / 2.0,
-            -f64::sqrt(2.0) / 2.0,
-        ));
-        let expected = Tuple::new_vector(0.0, 0.97014, -0.24254);
-
-        assert_eq!(n, expected)
     }
 
     #[test]
