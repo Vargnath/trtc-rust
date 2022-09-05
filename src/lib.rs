@@ -5,6 +5,7 @@ pub mod intersections;
 pub mod light;
 pub mod material;
 pub mod matrix;
+pub mod plane;
 pub mod ray;
 pub mod shape;
 pub mod sphere;
