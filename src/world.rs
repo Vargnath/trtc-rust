@@ -1,14 +1,91 @@
 use crate::color::Color;
-use crate::intersections::{Computations, Intersections};
+use crate::intersections::{Computations, Intersection, Intersections};
 use crate::light::PointLight;
+use crate::material::Material;
 use crate::matrix::Matrix4;
+use crate::plane::Plane;
 use crate::ray::Ray;
 use crate::shape::Shape;
 use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum WorldShape {
+    Sphere(Sphere),
+    Plane(Plane),
+}
+
+impl From<Sphere> for WorldShape {
+    fn from(sphere: Sphere) -> Self {
+        Self::Sphere(sphere)
+    }
+}
+
+impl From<Plane> for WorldShape {
+    fn from(plane: Plane) -> Self {
+        Self::Plane(plane)
+    }
+}
+
+impl Shape for WorldShape {
+    fn material(&self) -> &Material {
+        match self {
+            WorldShape::Sphere(sphere) => sphere.material(),
+            WorldShape::Plane(plane) => plane.material(),
+        }
+    }
+
+    fn material_mut(&mut self) -> &mut Material {
+        match self {
+            WorldShape::Sphere(sphere) => sphere.material_mut(),
+            WorldShape::Plane(plane) => plane.material_mut(),
+        }
+    }
+
+    fn transform(&self) -> &Matrix4 {
+        match self {
+            WorldShape::Sphere(sphere) => sphere.transform(),
+            WorldShape::Plane(plane) => plane.transform(),
+        }
+    }
+
+    fn transform_mut(&mut self) -> &mut Matrix4 {
+        match self {
+            WorldShape::Sphere(sphere) => sphere.transform_mut(),
+            WorldShape::Plane(plane) => plane.transform_mut(),
+        }
+    }
+
+    fn local_intersect(&self, local_ray: Ray) -> Intersections<Self> {
+        Intersections::new(
+            match self {
+                WorldShape::Sphere(sphere) => sphere
+                    .local_intersect(local_ray)
+                    .iter()
+                    .map(|x| x.t)
+                    .collect::<Vec<_>>(),
+                WorldShape::Plane(plane) => plane
+                    .local_intersect(local_ray)
+                    .iter()
+                    .map(|x| x.t)
+                    .collect::<Vec<_>>(),
+            }
+            .into_iter()
+            .map(|x| Intersection::<Self>::new(x, self))
+            .collect::<Vec<_>>(),
+        )
+    }
+
+    fn local_normal_at(&self, local_point: Tuple) -> Tuple {
+        match self {
+            WorldShape::Sphere(sphere) => sphere.local_normal_at(local_point),
+            WorldShape::Plane(plane) => plane.local_normal_at(local_point),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
-pub struct World<S: Shape = Sphere> {
+pub struct World<S: Shape = WorldShape> {
     pub objects: Vec<S>,
     pub light: Option<PointLight>,
 }
