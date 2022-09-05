@@ -1,14 +1,13 @@
 use crate::ray::Ray;
 use crate::shape::Shape;
-use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 use crate::EPSILON;
 use std::ops::{Deref, Index};
 use std::ptr;
 
-pub struct Computations<'a> {
+pub struct Computations<'a, S: Shape> {
     pub t: f64,
-    pub object: &'a Sphere,
+    pub object: &'a S,
     pub point: Tuple,
     pub eyev: Tuple,
     pub normalv: Tuple,
@@ -17,17 +16,17 @@ pub struct Computations<'a> {
 }
 
 #[derive(Debug, Copy, Clone)]
-pub struct Intersection<'a> {
+pub struct Intersection<'a, S: Shape> {
     pub t: f64,
-    pub object: &'a Sphere,
+    pub object: &'a S,
 }
 
-impl<'a> Intersection<'a> {
-    pub fn new(t: f64, object: &'a Sphere) -> Self {
+impl<'a, S: Shape> Intersection<'a, S> {
+    pub fn new(t: f64, object: &'a S) -> Self {
         Self { t, object }
     }
 
-    pub fn prepare_computations(&self, r: Ray) -> Computations {
+    pub fn prepare_computations(&self, r: Ray) -> Computations<S> {
         let object = self.object;
         let point = r.position(self.t);
         let eyev = -r.direction;
@@ -51,20 +50,20 @@ impl<'a> Intersection<'a> {
     }
 }
 
-impl<'a> PartialEq for Intersection<'a> {
+impl<'a, S: Shape> PartialEq for Intersection<'a, S> {
     fn eq(&self, other: &Self) -> bool {
         self.t == other.t && ptr::eq(self.object, other.object)
     }
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct Intersections<'a> {
-    inner: Vec<Intersection<'a>>,
+pub struct Intersections<'a, S: Shape> {
+    inner: Vec<Intersection<'a, S>>,
     hit: Option<usize>,
 }
 
-impl<'a> Intersections<'a> {
-    pub fn new(mut intersections: Vec<Intersection<'a>>) -> Self {
+impl<'a, S: Shape> Intersections<'a, S> {
+    pub fn new(mut intersections: Vec<Intersection<'a, S>>) -> Self {
         intersections.sort_by(|lhs, rhs| lhs.t.partial_cmp(&rhs.t).unwrap());
         let hit = intersections
             .iter()
@@ -85,7 +84,7 @@ impl<'a> Intersections<'a> {
         self.inner.is_empty()
     }
 
-    pub fn hit(&self) -> Option<&Intersection<'a>> {
+    pub fn hit(&self) -> Option<&Intersection<'a, S>> {
         match self.hit {
             Some(hit) => Some(&self[hit]),
             None => None,
@@ -93,16 +92,16 @@ impl<'a> Intersections<'a> {
     }
 }
 
-impl<'a> Index<usize> for Intersections<'a> {
-    type Output = Intersection<'a>;
+impl<'a, S: Shape> Index<usize> for Intersections<'a, S> {
+    type Output = Intersection<'a, S>;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.inner[index]
     }
 }
 
-impl<'a> Deref for Intersections<'a> {
-    type Target = [Intersection<'a>];
+impl<'a, S: Shape> Deref for Intersections<'a, S> {
+    type Target = [Intersection<'a, S>];
 
     fn deref(&self) -> &Self::Target {
         self.inner.as_slice()

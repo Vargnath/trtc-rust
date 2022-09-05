@@ -57,7 +57,7 @@ fn main() {
     left.material.diffuse = 0.7;
     left.material.specular = 0.3;
 
-    let mut world = World::<Sphere>::new();
+    let mut world = World::new();
     world.objects.push(floor);
     world.objects.push(left_wall);
     world.objects.push(right_wall);

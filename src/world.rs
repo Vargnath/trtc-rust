@@ -7,8 +7,8 @@ use crate::shape::Shape;
 use crate::sphere::Sphere;
 use crate::tuple::Tuple;
 
-#[derive(Debug)]
-pub struct World<S: Shape> {
+#[derive(Debug, Clone)]
+pub struct World<S: Shape = Sphere> {
     pub objects: Vec<S>,
     pub light: Option<PointLight>,
 }
@@ -21,7 +21,7 @@ impl<S: Shape> World<S> {
         }
     }
 
-    pub fn intersect_world(&self, r: Ray) -> Intersections {
+    pub fn intersect_world(&self, r: Ray) -> Intersections<S> {
         let mut xs = Vec::new();
         for object in self.objects.iter() {
             xs.extend_from_slice(object.intersect(r).as_ref());
@@ -30,9 +30,9 @@ impl<S: Shape> World<S> {
         Intersections::new(xs)
     }
 
-    pub fn shade_hit(&self, comps: Computations) -> Color {
+    pub fn shade_hit(&self, comps: Computations<S>) -> Color {
         let shadowed = self.is_shadowed(comps.over_point);
-        comps.object.material.lighting(
+        comps.object.material().lighting(
             self.light.unwrap(),
             comps.point,
             comps.eyev,
@@ -103,7 +103,7 @@ mod tests {
 
     #[test]
     fn creating_a_world() {
-        let w = World::<Sphere>::new();
+        let w: World = World::new();
 
         assert!(w.objects.is_empty());
         assert_eq!(w.light, None)

@@ -21,15 +21,23 @@ impl Sphere {
 }
 
 impl Shape for Sphere {
-    fn transform(&self) -> Matrix4 {
-        self.transform
+    fn material(&self) -> &Material {
+        &self.material
     }
 
-    fn material(&self) -> Material {
-        self.material
+    fn material_mut(&mut self) -> &mut Material {
+        &mut self.material
     }
 
-    fn local_intersect(&self, local_ray: Ray) -> Intersections {
+    fn transform(&self) -> &Matrix4 {
+        &self.transform
+    }
+
+    fn transform_mut(&mut self) -> &mut Matrix4 {
+        &mut self.transform
+    }
+
+    fn local_intersect(&self, local_ray: Ray) -> Intersections<Self> {
         let sphere_to_ray = local_ray.origin - Tuple::new_point(0.0, 0.0, 0.0);
         let a = local_ray.direction * local_ray.direction;
         let b = 2.0 * (local_ray.direction * sphere_to_ray);
